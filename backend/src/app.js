@@ -15,15 +15,12 @@ const app = express();
 const server = createServer(app);
 const io = connectToSocket(server);
 
-// --- 1. CONFIG: Fix __dirname for ES Modules ---
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// --- 2. CONFIG: Multer Storage ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // Pointing to 'uploads' folder relative to this file
-        // If app.js is in 'src', and 'uploads' is in 'backend', we go up one level '../'
         cb(null, path.join(__dirname, '../uploads')); 
     },
     filename: (req, file, cb) => {
@@ -38,8 +35,6 @@ app.use(cors());
 app.use(express.json({ limit: "40kb" }));
 app.use(express.urlencoded({ limit: "40kb", extended: true }));
 
-// --- 3. MIDDLEWARE: Serve Uploads Folder Publicly ---
-// This is critical for the frontend to actually SEE the image
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use("/api/v1/users", userRoutes);

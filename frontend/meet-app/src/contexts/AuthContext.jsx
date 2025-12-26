@@ -2,11 +2,12 @@ import axios from "axios";
 import httpStatus from "http-status";
 import { useNavigate } from "react-router-dom";
 import { createContext, useContext, useState, useEffect } from "react";
+import server from '../environment';
 
 export const AuthContext = createContext({});
 
 const client = axios.create({
-    baseURL: "http://localhost:8000/api/v1/users"
+    baseURL: `${server}/api/v1/users`
 });
 
 export const AuthProvider = ({ children }) => {
@@ -88,13 +89,4 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            // Optional: You could verify the token with the backend here
-            // For now, we assume if they have a token, they are logged in
-            setUserData({ token: token }); 
-            router("/home"); // Send them back to home instead of login
-        }
-    }, []);
 }

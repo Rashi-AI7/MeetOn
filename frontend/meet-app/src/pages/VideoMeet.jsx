@@ -14,8 +14,9 @@ import StopScreenShareIcon from '@mui/icons-material/StopScreenShare'
 import ChatIcon from '@mui/icons-material/Chat'
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import server from '../environment';
 
-let server_url = `http://localhost:8000`
+let server_url = server;
 
 var connections = {};
 

@@ -6,6 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import HomeIcon from '@mui/icons-material/Home';
 import { IconButton } from '@mui/material';
+import server from '../environment';
 
 export default function History() {
 
@@ -17,9 +18,6 @@ export default function History() {
         const fetchHistory = async () => {
             try {
                 const history = await getHistoryOfUser();
-                
-                // ✅ SAFETY CHECK: Only set state if it's a valid array
-                // If the backend sends {message: "No history"}, we treat it as []
                 if (Array.isArray(history)) {
                     setMeetings(history);
                 } else {
@@ -29,7 +27,7 @@ export default function History() {
                 
             } catch (e) {
                 console.error("Failed to fetch history:", e);
-                setMeetings([]); // Fallback to empty list on error
+                setMeetings([]);
             }
         }
 
@@ -57,7 +55,6 @@ export default function History() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                {/* ✅ CRASH FIX: Check if Array.isArray before mapping */}
                 {Array.isArray(meetings) && meetings.length > 0 ? (
                     meetings.map((e, i) => {
                         return (
