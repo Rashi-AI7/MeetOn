@@ -1,0 +1,235 @@
+/* --- CSS Variables --- */
+.meetVideoContainer {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    --card-bg: #1e1e1e;
+    --glass-bg: rgba(40, 40, 40, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --btn-hover: rgba(255, 255, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --video-border: #333;
+    --chat-bg: #1e1e1e;
+    --self-chat: #005c4b; /* WhatsApp Green */
+    --other-chat: #202c33; /* Dark Gray */
+    --lobby-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    
+    background: var(--bg-color);
+    color: var(--text-color);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    font-family: 'Roboto', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.lightMode {
+    --bg-color: #f0f2f5;
+    --text-color: #333333;
+    --card-bg: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --btn-hover: rgba(0, 0, 0, 0.05);
+    --shadow-color: rgba(0, 0, 0, 0.15);
+    --video-border: #e0e0e0;
+    --chat-bg: #ffffff;
+    --self-chat: #d9fdd3; /* WhatsApp Light Green */
+    --other-chat: #ffffff;
+    --lobby-gradient: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+}
+
+/* --- Remote Video Grid --- */
+.conferenceView {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.conferenceView video {
+    width: 600px;
+    max-width: 45vw;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    border: 2px solid var(--video-border);
+    object-fit: cover;
+    background-color: #000;
+}
+
+/* --- ✅ FLOATING LOCAL VIDEO (Picture-in-Picture) --- */
+.meetUserVideo {
+    position: absolute;
+    bottom: 100px;
+    right: 20px;
+    width: 300px;  /* Slightly larger for better visibility */
+    height: 170px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    border: 2px solid var(--self-chat);
+    z-index: 10;
+    background: black;
+    display: flex;            
+    justify-content: center;
+    align-items: center;    
+}
+
+.meetUserVideo video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    display: block;           
+}
+
+/* --- Control Bar --- */
+.buttonContainers {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 10px 30px;
+    border-radius: 50px;
+    display: flex;
+    gap: 20px;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    border: 1px solid var(--glass-border);
+    z-index: 100;
+}
+
+.buttonContainers button {
+    transition: transform 0.2s ease, background-color 0.2s;
+    color: var(--text-color) !important; 
+}
+.buttonContainers button[aria-label="End Call"] {
+    color: #ff4d4d !important;
+}
+.buttonContainers button:hover {
+    transform: scale(1.1);
+    background-color: var(--btn-hover);
+}
+
+/* --- Chat Room --- */
+.chatRoom {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    bottom: 270px; /* Stop above the local video */
+    width: 350px;
+    background: var(--chat-bg);
+    border-radius: 20px;
+    box-shadow: -10px 0 30px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--video-border);
+    z-index: 50;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(120%); }
+    to { transform: translateX(0); }
+}
+
+.chatContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    color: var(--text-color);
+}
+
+.chatContainer h1 {
+    color: var(--text-color);
+    margin-top: 0;
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--video-border);
+    padding-bottom: 10px;
+}
+
+.chattingDisplay {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* --- ✅ WHATSAPP STYLE CHAT BUBBLES --- */
+.msgBlock {
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Message Sent by Me */
+.selfMessage {
+    align-self: flex-end; /* Align Right */
+    background-color: var(--self-chat);
+    color: var(--text-color);
+    border-bottom-right-radius: 0;
+}
+
+/* Message Received */
+.otherMessage {
+    align-self: flex-start; /* Align Left */
+    background-color: var(--other-chat);
+    color: var(--text-color);
+    border-bottom-left-radius: 0;
+    border: 1px solid var(--video-border);
+}
+
+.msgBlock strong {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+    opacity: 0.8;
+}
+
+.chattingArea {
+    display: flex;
+    gap: 10px;
+}
+
+/* --- Lobby --- */
+.lobbyContainer {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--lobby-gradient);
+    color: var(--text-color);
+    gap: 20px;
+    width: 100vw;
+}
+
+.lobbyBox {
+    background: var(--glass-bg);
+    padding: 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 20px 50px var(--shadow-color);
+}

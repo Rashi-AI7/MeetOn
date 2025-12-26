@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+  --primary-color: #16B844; /* The Green */
+  --primary-hover: #128f35; /* Darker Green for hover */
+  --bg-color: #FFFFFF;      /* Pure White */
+  --text-color: #333333;    /* Dark Gray for text (easier on eyes than black) */
+  --light-gray: #f5f5f5;    /* For backgrounds of sections */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+/* --- BUTTON STYLES --- */
+button, .btnprimary {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(22, 184, 68, 0.2);
+}
+
+button:hover, .btnprimary:hover {
+  background-color: var(--primary-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(22, 184, 68, 0.3);
+}
+
+/* --- LANDING PAGE --- */
+.landingPageContainer {
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 80px;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+.navHeader h2 {
+  font-size: 28px;
+  color: var(--primary-color);
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.navlist {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.navlist div, .navlist p {
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.navlist div:hover, .navlist p:hover {
+  color: var(--primary-color);
+}
+
+.landingmain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 100px;
+  flex: 1; /* Fills remaining height */
+}
+
+.hero-text {
+  max-width: 50%;
+}
+
+.hero-text h1 {
+  font-size: 3.5rem;
+  line-height: 1.2;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.hero-images {
+  color: var(--primary-color); /* Makes specific words green */
+}
+
+/* --- HOME PAGE --- */
+.homeContainer {
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.meetContainer {
+  display: flex;
+  height: 100%;
+  padding: 0 50px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.leftPanel {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rightPanel {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rightPanel img {
+  max-width: 90%;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
