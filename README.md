@@ -23,7 +23,7 @@ Whether you are joining as a guest or registering for a secure dashboard, MeetOn
 * **Guest Access:** Quick join capabilities without mandatory sign-up (Coming Soon).
 * **Real-time Video:** High-quality video streaming (In Progress).
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Frontend:**
 * React.js
@@ -38,11 +38,9 @@ Whether you are joining as a guest or registering for a secure dashboard, MeetOn
 
 ## Screenshots
 
-| Landing Page | Login Page |
+| Landing Page |
 |:---:|:---:|
-| <img src="public/vc.webp" width="400" alt="Landing Page"> | <img src="public/video-conference.webp" width="400" alt="Login Page"> |
-
-*(Note: Replace these paths with actual screenshots of your running app)*
+| <img src="public/Screenshot 2025-12-30 220354.png" width="400" alt="Landing Page"> |
 
 ## Getting Started
 
