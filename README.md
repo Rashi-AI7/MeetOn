@@ -1,6 +1,6 @@
 # MeetOn
 
-![MeetOn Banner](frontend/meet-app/public/Screenshot 2025-12-30 220354.png)
+![MeetOn Banner](frontend/meet-app/public/meeton.png)
 
 > **High-quality meetings without the hassle.** > Secure, fast, and free video conferencing for everyone.
 
