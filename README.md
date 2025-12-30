@@ -39,8 +39,7 @@ Whether you are joining as a guest or registering for a secure dashboard, MeetOn
 ## Screenshots
 
 | Landing Page |
-|:---:|:---:|
-| <img src="public/Screenshot 2025-12-30 220354.png" width="400" alt="Landing Page"> |
+| <img src="frontend/meet-app/public/Screenshot 2025-12-30 220354.png" width="400" alt="Landing Page"> |
 
 ## Getting Started
 
