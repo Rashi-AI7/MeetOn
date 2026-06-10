@@ -1,0 +1,12 @@
+{
+  "short_name": "MeetOn",
+  "name": "MeetOn – Video Meetings for Everyone",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#16B844",
+  "background_color": "#ffffff",
+  "description": "Secure, fast, and free video conferencing for everyone."
+}
