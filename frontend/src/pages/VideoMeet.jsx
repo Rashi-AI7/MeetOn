@@ -176,7 +176,6 @@ export default function VideoMeetComponent() {
     const [message,        setMessage]        = useState("");
     const [newMessages,    setNewMessages]    = useState(0);
     const [askForUsername, setAskForUsername] = useState(true);
-    const [myAvatar] = React.useState(() => localStorage.getItem("avatar") || null);
 
     // Prevent body scrollbar from flashing (caused by MUI Tooltip portals)
     useEffect(() => {
@@ -393,7 +392,6 @@ export default function VideoMeetComponent() {
         // The peer with the LOWER socket ID is polite.
         pc._makingOffer = false;
         pc._ignoreOffer = false;
-        const polite = socketIdRef.current < id;
 
         // ── onnegotiationneeded ────────────────────────────────────────────────
         pc.onnegotiationneeded = async () => {
@@ -752,7 +750,7 @@ export default function VideoMeetComponent() {
                 else socketRef.current.emit("peer-ready");
             });
         });
-    }, [url, navigate, addToUserHistory, gotMessageFromServer, createPeerConnection, addMessage]);
+    }, [url, navigate, addToUserHistory, gotMessageFromServer, createPeerConnection, addMessage, username]);
 
     // ── Chat ──────────────────────────────────────────────────────────────────
     const sendReaction = (emoji) => {
