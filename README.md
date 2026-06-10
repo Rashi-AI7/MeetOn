@@ -1,232 +1,238 @@
-# MeetOn — Video Conferencing App
+# MeetOn 🎥
 
-Secure, real-time video meetings. Node.js + Socket.IO backend, React frontend.
+A full-stack real-time video conferencing web app built with React, Node.js, Socket.IO and WebRTC. Create instant meetings, invite anyone with a link, and collaborate with video, audio, chat, screen sharing and reactions — all in the browser.
+
+![MeetOn](https://img.shields.io/badge/version-2.0.0-C62E65?style=flat-square)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-ESM-339933?style=flat-square&logo=node.js)
+![Socket.IO](https://img.shields.io/badge/Socket.IO-4-010101?style=flat-square&logo=socket.io)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat-square&logo=mongodb)
+
+---
+
+## Features
+
+- **Video & Audio Calls** — Multi-user real-time video calls using WebRTC peer-to-peer mesh networking (up to 6 participants)
+- **Perfect Negotiation** — Collision-safe WebRTC signaling following the W3C Perfect Negotiation pattern
+- **Screen Sharing** — Share your screen with a single click, switch back to camera seamlessly
+- **In-Meeting Chat** — Public group chat with message history replay for late joiners
+- **Private DMs** — Send direct messages to individual participants mid-call
+- **Emoji Reactions** — Floating emoji reactions visible to all participants
+- **Raise Hand** — Signal the host without interrupting
+- **Cam / Mic Controls** — Toggle camera and microphone independently, with live status shown to peers
+- **Dark / Light Mode** — Persistent theme toggle
+- **Authentication**
+  - Email & password (bcrypt hashed)
+  - Google OAuth 2.0
+  - Fingerprint-based guest access (1 free meeting)
+- **Meeting History** — Browse and rejoin past meetings (90-day TTL)
+- **Duplicate Join Prevention** — Same account can't join the same meeting twice
+- **Host Controls** — Host can end the meeting for all participants
+- **Responsive UI** — Works on desktop and mobile browsers
+
+---
+
+## Tech Stack
+
+### Frontend
+| Technology | Purpose |
+|---|---|
+| React 18 | UI framework |
+| React Router v6 | Client-side routing |
+| Socket.IO Client | Real-time signaling |
+| WebRTC (native) | Peer-to-peer video/audio |
+| Material UI v5 | Component library |
+| Axios | HTTP client |
+
+### Backend
+| Technology | Purpose |
+|---|---|
+| Node.js (ESM) | Runtime |
+| Express 5 | HTTP server |
+| Socket.IO 4 | WebSocket signaling server |
+| Mongoose 9 | MongoDB ODM |
+| JWT | Authentication tokens |
+| bcrypt | Password hashing |
+| Helmet | Security headers |
+| express-rate-limit | Brute force protection |
+| Google Auth Library | OAuth token verification |
+
+### Database
+| Technology | Purpose |
+|---|---|
+| MongoDB Atlas | Users, rooms, meeting history |
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  Frontend (React)                    │
+│  Landing → Auth → Home → VideoMeet → History        │
+│  AuthContext · ThemeContext · environment.js         │
+└──────────────────┬──────────────────────────────────┘
+                   │  REST (Axios) + WebSocket (Socket.IO)
+┌──────────────────▼──────────────────────────────────┐
+│               Backend (Express + Socket.IO)          │
+│  /api/v1/users  ·  /api/v1/rooms                    │
+│  user.controller · room.controller · socketManager  │
+│  JWT middleware · rate limiting · Helmet             │
+└──────────────────┬──────────────────────────────────┘
+                   │  Mongoose
+┌──────────────────▼──────────────────────────────────┐
+│                 MongoDB Atlas                        │
+│  Users · Rooms (24h TTL) · Meetings (90d TTL)       │
+└─────────────────────────────────────────────────────┘
+
+WebRTC: Direct P2P between browsers (STUN: Google public servers)
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- MongoDB Atlas account (or local MongoDB)
+- Google Cloud project with OAuth 2.0 credentials (optional)
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/MeetOn.git
+cd MeetOn
+```
+
+### 2. Set up the backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Fill in your values in .env
+npm run dev
+```
+
+**`backend/.env`**
+```env
+MONGO_URI=your_mongodb_atlas_uri
+JWT_SECRET=your_long_random_secret
+JWT_EXPIRES_IN=7d
+PORT=8000
+ALLOWED_ORIGIN=http://localhost:3000
+GOOGLE_CLIENT_ID=your_google_client_id   # optional
+```
+
+### 3. Set up the frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm start
+```
+
+**`frontend/.env`**
+```env
+REACT_APP_SERVER_URL=http://localhost:8000
+REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id   # optional
+```
+
+### 4. Open the app
+
+Visit `http://localhost:3000`
+
+---
+
+## Deployment
+
+### Backend → Railway
+1. New Project → Deploy from GitHub → set root to `backend/`
+2. Add all env vars from `backend/.env.example`
+3. Settings → Networking → Generate Domain
+
+### Frontend → Vercel
+1. New Project → Import repo → set root to `frontend/`
+2. Framework: Create React App
+3. Add env vars:
+   ```
+   REACT_APP_SERVER_URL=https://your-backend.railway.app
+   REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id
+   ```
+
+### After deploying both
+- Update `ALLOWED_ORIGIN` on Railway to your Vercel URL
+- Add your Vercel URL to Google OAuth authorized origins
+- MongoDB Atlas → Network Access → allow `0.0.0.0/0`
 
 ---
 
 ## Project Structure
 
 ```
-meeton-synced/
+MeetOn/
 ├── backend/
 │   ├── src/
-│   │   ├── app.js                        # Express + Socket.IO bootstrap
 │   │   ├── controllers/
-│   │   │   ├── user.controller.js        # Auth: register, login, history
-│   │   │   ├── room.controller.js        # Room: create, validate, end
-│   │   │   └── socketManager.js          # WebRTC signalling + chat
+│   │   │   ├── user.controller.js
+│   │   │   ├── room.controller.js
+│   │   │   └── socketManager.js
 │   │   ├── middleware/
-│   │   │   └── auth.js                   # verifyToken, optionalAuth, requireFullAccount
+│   │   │   └── auth.js
 │   │   ├── models/
-│   │   │   ├── user.model.js             # User (local + Google + phone + guest)
-│   │   │   ├── room.model.js             # Active meeting room
-│   │   │   ├── meeting.model.js          # History record (one per user+room, upserted)
-│   │   │   └── otp.model.js              # Phone OTP (TTL 10 min)
-│   │   └── routes/
-│   │       ├── users.routes.js           # /api/v1/users/*
-│   │       └── rooms.routes.js           # /api/v1/rooms/*
-│   ├── .env.example                      # Copy to .env and fill in
+│   │   │   ├── user.model.js
+│   │   │   ├── room.model.js
+│   │   │   └── meeting.model.js
+│   │   ├── routes/
+│   │   │   ├── users.routes.js
+│   │   │   └── rooms.routes.js
+│   │   └── app.js
+│   ├── .env.example
 │   └── package.json
 │
 └── frontend/
-    ├── public/
-    │   ├── index.html
-    │   ├── favicon.svg
-    │   └── manifest.json
     ├── src/
-    │   ├── index.js                      # React entry + BrowserRouter
-    │   ├── App.js                        # Routes + RequireAuth guards
-    │   ├── App.css                       # All global styles
-    │   ├── index.css                     # Minimal reset
-    │   ├── environment.js                # Backend URL (single source of truth)
     │   ├── contexts/
-    │   │   └── AuthContext.jsx           # API calls: login, register, history
-    │   ├── components/
-    │   │   ├── MeetonLogo.jsx
-    │   │   └── PageTitle.jsx
+    │   │   ├── AuthContext.jsx
+    │   │   └── ThemeContext.jsx
     │   ├── pages/
-    │   │   ├── landing.jsx               # Public home page
-    │   │   ├── authentication.jsx        # Login / Register
-    │   │   ├── home.jsx                  # Dashboard (create/join meeting)
-    │   │   ├── VideoMeet.jsx             # Video call (WebRTC + Socket.IO)
-    │   │   ├── history.jsx               # Past meetings
-    │   │   └── NotFound.jsx
-    │   ├── styles/
-    │   │   └── videoComponent.module.css
-    │   └── utils/                        # (withAuth.jsx excluded — dead code)
+    │   │   ├── VideoMeet.jsx
+    │   │   ├── home.jsx
+    │   │   ├── authentication.jsx
+    │   │   ├── history.jsx
+    │   │   └── landing.jsx
+    │   ├── utils/
+    │   │   └── environment.js
+    │   └── App.js
+    ├── .env.example
     └── package.json
 ```
 
 ---
 
-## Prerequisites
+## Security Highlights
 
-- **Node.js** ≥ 18
-- **npm** ≥ 9
-- A **MongoDB** database (Atlas free tier works fine)
-
----
-
-## 1 — Backend Setup
-
-```bash
-cd backend
-cp .env.example .env
-```
-
-Open `.env` and set **at minimum** these two values:
-
-```env
-MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.xxxxx.mongodb.net/meeton
-JWT_SECRET=<64-char random hex — see below>
-```
-
-Generate a JWT secret:
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-```
-
-All other `.env` keys are optional for local development:
-- `GOOGLE_CLIENT_ID` — only needed if you use Google Sign-In
-- `TWILIO_*` — only needed for phone OTP; without it OTPs are printed to the console
-- `PORT` defaults to `8000`
-- `ALLOWED_ORIGIN` defaults to `http://localhost:5173`
-
-Install and start:
-```bash
-npm install
-npm run dev        # nodemon (hot-reload)
-# or
-npm start          # plain node
-```
-
-You should see:
-```
-✅  MongoDB: cluster0.xxxxx.mongodb.net
-🚀  Server on port 8000
-```
+- JWT verified at both HTTP and Socket.IO handshake layers
+- Anti-enumeration: identical error for wrong username or wrong password
+- `requireFullAccount` middleware blocks guests from protected routes
+- Rate limiting on all auth, guest, and profile endpoints
+- Helmet security headers (COEP disabled for WebRTC compatibility)
+- bcrypt password hashing (10 rounds)
+- NoSQL injection protection via mongo-sanitize
+- Duplicate session prevention — same account can't join the same room twice
 
 ---
 
-## 2 — Frontend Setup
+## Known Limitations
 
-```bash
-cd frontend
-npm install
-```
-
-Create a `.env` file (optional — only needed if your backend runs somewhere other than localhost):
-```env
-REACT_APP_SERVER_URL=http://localhost:8000
-```
-
-Start:
-```bash
-npm start
-```
-
-App opens at **http://localhost:5173** (or port 3000 if using create-react-app defaults).
-
-> The `"proxy": "http://localhost:8000"` in `frontend/package.json` proxies all
-> `/api/*` requests in development so you don't need CORS config changes locally.
+- **No TURN server** — calls may fail between users on strict symmetric NAT (corporate/mobile networks). Planned for a future release.
+- **In-memory socket state** — room state resets on server restart. Redis pub/sub needed for horizontal scaling.
+- **Mesh WebRTC** — capped at 6 participants. SFU architecture (e.g. mediasoup) needed for larger calls.
 
 ---
 
-## 3 — Full Local Run (both at once)
+## Author
 
-Terminal 1:
-```bash
-cd backend && npm run dev
-```
+**Rashi-AI7**
 
-Terminal 2:
-```bash
-cd frontend && npm start
-```
-
----
-
-## API Reference
-
-### Auth — `/api/v1/users`
-
-| Method | Path | Auth | Body | Returns |
-|--------|------|------|------|---------|
-| POST | `/register` | — | `{ name, username, password }` | `{ message }` |
-| POST | `/login` | — | `{ username, password }` | `{ token, user: { name, username, avatar } }` |
-| POST | `/google` | — | `{ idToken }` | `{ token, user }` |
-| POST | `/phone/send-otp` | — | `{ phone }` | `{ message }` |
-| POST | `/phone/verify-otp` | — | `{ phone, otp, name? }` | `{ token, user }` |
-| POST | `/guest` | — | `{ fingerprint }` | `{ token, user, guestMeetingsUsed }` |
-| GET | `/get_all_activity` | Bearer | — | `Meeting[]` sorted newest-first |
-| POST | `/add_to_activity` | Bearer | `{ meeting_code }` | `{ message }` |
-
-### Rooms — `/api/v1/rooms`
-
-| Method | Path | Auth | Body | Returns |
-|--------|------|------|------|---------|
-| POST | `/create` | Bearer (full account) | `{ title? }` | `{ meetingCode, title, joinUrl }` |
-| GET | `/:code/validate` | optional | — | `{ meetingCode, title, host_id }` |
-| PATCH | `/:code/end` | Bearer (host only) | — | `{ message }` |
-
-### Socket.IO Events
-
-#### Client → Server
-| Event | Args | Description |
-|-------|------|-------------|
-| `join-call` | `meetingCode, callback` | Join a room (validates DB + guest limits) |
-| `signal` | `toSocketId, signalData` | Relay WebRTC offer/answer/ICE |
-| `chat-message` | `text` | Send a chat message |
-| `peer-ready` | — | Flush queued ICE candidates |
-| `rejoin-call` | `meetingCode, callback` | Rejoin after brief disconnect |
-
-#### Server → Client
-| Event | Args | Description |
-|-------|------|-------------|
-| `existing-participants` | `socketId[]` | Sent to joiner with existing peer list |
-| `user-joined` | `socketId, username, allIds[]` | Broadcast to existing peers |
-| `user-left` | `socketId` | Broadcast on disconnect |
-| `signal` | `fromSocketId, signalData` | Relayed WebRTC signal |
-| `chat-message` | `text, sender, socketId` | Broadcast to all in room |
-| `room-error` | `{ code, message }` | `ROOM_NOT_FOUND` / `ROOM_FULL` / `GUEST_LIMIT` |
-
----
-
-## User Flows (verified end-to-end)
-
-```
-Register  → POST /register → 201 Created → navigate to /auth (login tab)
-Login     → POST /login    → { token, user.{ name, username } }
-                           → localStorage: token, username, name → /home
-
-New Mtg   → POST /rooms/create (Bearer) → { meetingCode: "3a9fc1b2" }
-           → ShareModal shows code
-           → navigate /meet/3a9fc1b2
-
-Join Mtg  → GET /rooms/3a9fc1b2/validate (optional)
-           → VideoMeet lobby (display name)
-           → socket.connect({ auth: { token } })   ← JWT verified by io.use()
-           → emit("join-call", "3a9fc1b2")         ← Room.findOne() matches ✓
-           → ack.success → addToUserHistory("3a9fc1b2")  ← upsert, no duplicates
-           → on("existing-participants", ids)       ← offer to all existing peers
-           → on("user-joined", id, name, allIds)    ← 3-arg signature ✓
-
-Hangup    → tracks.stop() → navigate("/home")
-           → useEffect cleanup → socket.disconnect()
-           → backend emits "user-left" to all remaining peers ✓
-
-History   → GET /get_all_activity (Bearer header ✓, NOT query param)
-           → Meeting[] { user_id, meetingCode, date }
-           → Rejoin → navigate("/meet/code") — no extra addToUserHistory call
-```
-
----
-
-## Production Checklist
-
-- [ ] Set all `.env` vars in your hosting dashboard (never commit `.env`)
-- [ ] Rotate MongoDB password (old one may be exposed in git history)
-- [ ] Set `ALLOWED_ORIGIN` to your real frontend domain
-- [ ] Add a TURN server for NAT traversal (`VITE_TURN_SERVER` in frontend `.env`)
-- [ ] Replace `npm run dev` with `npm start` or `pm2 start src/app.js`
-- [ ] Run `npm run build` in frontend and serve the `build/` folder
