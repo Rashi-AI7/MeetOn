@@ -37,16 +37,15 @@ function PeerVideo({ socketId, peerName, peerState, handRaised, onDm }) {
     const micOff = peerState?.audio === false;
     const initials = (name) => (name || "??").slice(0, 2).toUpperCase();
 
-    // Register this DOM element in the global map the instant it mounts.
-    // ontrack will find it here and set srcObject directly.
     const videoRef = useCallback((el) => {
         if (el) {
             peerVideoEls[socketId] = el;
-            // If ontrack already fired before this element mounted,
-            // the stream was parked in peerVideoEls._pending — grab it now.
             const pending = peerVideoEls._pending?.[socketId];
             if (pending) {
                 el.srcObject = pending;
+                // Never mute peer video — we WANT their audio
+                el.muted = false;
+                el.volume = 1.0;
                 el.play().catch(() => {});
                 delete peerVideoEls._pending[socketId];
             }
@@ -55,12 +54,28 @@ function PeerVideo({ socketId, peerName, peerState, handRaised, onDm }) {
         }
     }, [socketId]);
 
+    // Resume audio on user click — browsers block autoplay with audio
+    // until a user gesture has occurred on the page.
+    const handleClick = useCallback(() => {
+        const el = peerVideoEls[socketId];
+        if (el && el.paused) {
+            el.muted = false;
+            el.volume = 1.0;
+            el.play().catch(() => {});
+        }
+    }, [socketId]);
+
     return (
-        <div style={{
-            position: "relative", width: "min(600px, 45vw)", aspectRatio: "16/9",
-            borderRadius: 16, overflow: "hidden", background: "#0f0f1a",
-            display: "inline-block", flexShrink: 0,
-        }}>
+        <div
+            onClick={handleClick}
+            style={{
+                position: "relative",
+                width: "min(560px, 90vw)",   // mobile: 90vw; desktop: capped at 560px
+                aspectRatio: "16/9",
+                borderRadius: 16, overflow: "hidden", background: "#0f0f1a",
+                display: "inline-block", flexShrink: 0, cursor: "default",
+            }}
+        >
             {handRaised && (
                 <div style={{
                     position: "absolute", top: 10, right: 10, zIndex: 10,
@@ -70,10 +85,11 @@ function PeerVideo({ socketId, peerName, peerState, handRaised, onDm }) {
                 }}>✋ Raised hand</div>
             )}
 
-            {/* Always in DOM — opacity hides it, never unmounted so srcObject persists */}
+            {/* Never muted — audio MUST play for peers to hear each other */}
             <video
                 ref={videoRef}
                 autoPlay playsInline
+                muted={false}
                 style={{
                     width: "100%", height: "100%", objectFit: "cover",
                     opacity: camOff ? 0 : 1,
@@ -117,7 +133,7 @@ function PeerVideo({ socketId, peerName, peerState, handRaised, onDm }) {
                 <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "white" }}>
                     {peerName || socketId.slice(0, 6)}
                 </span>
-                <button onClick={onDm} style={{
+                <button onClick={(e) => { e.stopPropagation(); onDm(); }} style={{
                     background: "rgba(255,255,255,0.15)", border: "none",
                     borderRadius: 6, padding: "3px 7px", cursor: "pointer",
                     color: "white", fontSize: "0.72rem", fontWeight: 600,
@@ -343,27 +359,39 @@ export default function VideoMeetComponent() {
     // ── Media permissions ─────────────────────────────────────────────────────
     const getPermissions = async () => {
         try {
-            // Probe availability first, then get the combined stream
-            const vidStream = await navigator.mediaDevices.getUserMedia({ video: true }).catch(() => null);
-            const audStream = await navigator.mediaDevices.getUserMedia({ audio: true }).catch(() => null);
-            setVideoAvailable(!!vidStream);
-            setAudioAvailable(!!audStream);
-            vidStream?.getTracks().forEach(t => t.stop());
-            audStream?.getTracks().forEach(t => t.stop());
+            setScreenAvailable(!!navigator.mediaDevices?.getDisplayMedia);
 
-            setScreenAvailable(!!navigator.mediaDevices.getDisplayMedia);
+            // Request both tracks in one getUserMedia call — avoids mobile Safari
+            // losing the audio track when probing separately then re-requesting.
+            let stream = null;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                setVideoAvailable(true);
+                setAudioAvailable(true);
+            } catch (bothErr) {
+                // Try video-only
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    setVideoAvailable(true);
+                    setAudioAvailable(false);
+                } catch {
+                    // Try audio-only
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                        setVideoAvailable(false);
+                        setAudioAvailable(true);
+                    } catch {
+                        setVideoAvailable(false);
+                        setAudioAvailable(false);
+                        return;
+                    }
+                }
+            }
 
-            const constraints = {
-                video: !!vidStream,
-                audio: !!audStream,
-            };
-            if (!constraints.video && !constraints.audio) return;
-
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
             localStreamRef.current = stream;
             if (localVideoRef.current) {
                 localVideoRef.current.srcObject = stream;
-                localVideoRef.current.muted     = true;
+                localVideoRef.current.muted = true;
             }
         } catch (e) {
             console.warn("Media permission error:", e.name, e.message);
@@ -426,7 +454,12 @@ export default function VideoMeetComponent() {
             // Imperative: set srcObject directly on the DOM element — no React timing
             const el = peerVideoEls[id];
             if (el) {
-                if (el.srcObject !== stream) { el.srcObject = stream; el.play().catch(() => {}); }
+                if (el.srcObject !== stream) {
+                    el.srcObject = stream;
+                    el.muted = false;
+                    el.volume = 1.0;
+                    el.play().catch(() => {});
+                }
             } else {
                 if (!peerVideoEls._pending) peerVideoEls._pending = {};
                 peerVideoEls._pending[id] = stream;

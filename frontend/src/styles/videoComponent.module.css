@@ -21,13 +21,19 @@
     background: var(--bg);
     color: var(--text);
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
     font-family: 'Plus Jakarta Sans', 'Roboto', sans-serif;
     transition: background 0.3s ease, color 0.3s ease;
+    /* Safe area for notch/home bar on iOS/Android */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 /* ── LIGHT MODE ── */
@@ -178,7 +184,7 @@
     width: 100%;
     height: 100%;
     gap: 16px;
-    padding: 20px 20px 100px;
+    padding: 20px 20px 120px;
     box-sizing: border-box;
     overflow-y: auto;
 }
@@ -203,11 +209,11 @@
    ============================================================ */
 .meetUserVideo {
     position: fixed;
-    bottom: 100px;
-    right: 20px;
-    width: 240px;
+    bottom: calc(90px + env(safe-area-inset-bottom));
+    right: 12px;
+    width: 160px;
     aspect-ratio: 16/9;
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 8px 30px var(--shadow);
     border: 2px solid var(--primary);
@@ -250,24 +256,27 @@
    ============================================================ */
 .buttonContainers {
     position: fixed;
-    bottom: 24px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
     left: 50%;
     transform: translateX(-50%);
     background: var(--bar-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    padding: 10px 24px;
+    padding: 8px 16px;
     border-radius: 60px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     box-shadow: 0 8px 32px var(--shadow);
     border: 1px solid var(--border);
     z-index: 100;
+    max-width: calc(100vw - 24px);
+    flex-wrap: nowrap;
+    overflow-x: auto;
 }
 
 .controlBtn {
-    width: 46px; height: 46px;
+    width: 44px; height: 44px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     border: none;
@@ -275,6 +284,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     color: var(--text);
+    flex-shrink: 0;
 }
 .controlBtn:hover {
     background: rgba(255,255,255,0.15);
@@ -449,4 +459,30 @@
     align-items: center;
     gap: 20px;
     box-shadow: 0 20px 50px var(--shadow);
+}
+/* ============================================================
+   MOBILE RESPONSIVE (≤ 600px)
+   ============================================================ */
+@media (max-width: 600px) {
+    .buttonContainers {
+        padding: 6px 10px;
+        gap: 4px;
+    }
+    .controlBtn {
+        width: 38px;
+        height: 38px;
+    }
+    .meetUserVideo {
+        width: 110px;
+        right: 8px;
+        bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+    .conferenceView {
+        padding: 12px 8px 110px;
+        gap: 10px;
+    }
+    /* Timer */
+    .callTimer {
+        top: calc(8px + env(safe-area-inset-top));
+    }
 }
